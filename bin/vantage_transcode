@@ -27,8 +27,10 @@ options = { }
 op = OptionParser.new
 op.on('--server-address ADDRESS', 'The address of the Vantage server.') { |v| init_args[:server_address] = v }
 op.on('--server-port PORT', 'The port that the Vantage server is listening on.') { |v| init_args[:server_port] = v }
-op.on('--source-file-path PATH', 'The source media file that will be transcoded (flipped).') { |v| options[:source_file_path] = v }
-op.on('--output-location PATH', 'The output location where the transcoder should create the new file.') { |v| options[:output_location] = v }
+op.on('--source-file-path PATH', 'The source media file that will be transcoded (flipped).',
+      'NOTE: This path needs to be relative to the server.') { |v| options[:source_file_path] = v }
+op.on('--output-location PATH', 'The output location where the transcoder should create the new file.',
+      'NOTE: This path needs to be relative to the server.') { |v| options[:output_location] = v }
 op.on('--output-name NAME', 'The basename (everything but the last extension) of the output file.',
       "(eg: if you are using the quicktime movie encoder and you specify a basename of 'file1234'; the final output filename would be:  'file1234.mov'") { |v| options[:output_name] = v }
 op.on('--definition-file PATH', 'The path to the xml file containing the flip definition.') { |v| options[:definition_file_path] = v }
