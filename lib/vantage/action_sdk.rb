@@ -57,7 +57,6 @@ module Vantage
         headers['accepts'] ||= 'text/xml'
 
         query_as_string = query.map { |k,v| "#{k}=#{v}" }.join('&')
-        puts "QUERY: #{query.inspect} QAS: #{query_as_string.inspect}"
         _path = "#{base_path}#{path}?#{query_as_string}"
         logger.debug { "GET #{_path}" }
         response = http.get(_path, headers)
@@ -80,6 +79,7 @@ module Vantage
           query_as_string = query_hash_to_string(query)
           _path += "?#{query_as_string}"
         end
+        #puts "DATA:\n#{data}"
         response = http.post(_path, data, headers)
         response.body
       end
@@ -99,7 +99,7 @@ module Vantage
       end
 
       def build_xml_element(hash)
-        hash.map { |k,v| %(<#{k}#{v.nil? ? ' inil="true"/>' : ">#{v.is_a?(Hash) ? add_xml_element(v) : v}</#{k}>"}) }.join
+        hash.map { |k,v| %(<#{k}#{v.nil? ? ' i:nil="true"/>' : ">#{v.is_a?(Hash) ? add_xml_element(v) : v}</#{k}>"}) }.join
       end
 
       def build_xml(hash)
@@ -143,14 +143,17 @@ module Vantage
         prefix = args[:prefix]
         priority = args[:priority] ||= 0
 
-
         data = {
-          'SourceFilePath' => source_file_path,
+          # Definition has to come before 'OutputLocation', 'OutputName', and 'SourceFilePath' or the submission fails
+          'Definition' => definition,
+
+          'Prefix' => prefix,
+          'Priority' => priority,
+          # 'Variables' => nil,
+          # 'Decoder' => nil,
           'OutputLocation' => output_location,
           'OutputName' => output_name,
-          'Definition' => definition,
-          'Prefix' => prefix,
-          'Priority' => priority
+          'SourceFilePath' => source_file_path,
         }
 
         xml = build_xml('FlipSubmitMessage' => data)
