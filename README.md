@@ -5,6 +5,36 @@
 ### vantage_flip [bin/vantage_flip]
 
 #### Description
+  A utility to submit a new transcode (flip) job to Vantage
+
+#### Usage
+    Usage: vantage_flip [options]
+            --server-address ADDRESS     The address of the Vantage server.
+            --server-port PORT           The port that the Vantage server is listening on.
+            --source-file-path PATH      The source media file that will be transcoded (flipped).
+                                         NOTE: This path needs to be relative to the server.
+            --output-location PATH       The output location where the transcoder should create the new file.
+                                         NOTE: This path needs to be relative to the server.
+            --output-name NAME           The basename (everything but the last extension) of the output file.
+                                         (eg: if you are using the quicktime movie encoder and you specify a basename of 'file1234'; the final output filename would be:  'file1234.mov'
+            --definition-file PATH       The path to the xml file containing the flip definition.
+        -h, --help                       Displays this message.
+
+#### Example
+    ./vantage_flip --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
+
+#### Options File
+
+##### Default Options File Location
+    ~/.options/vantage_flip
+
+##### Options File Content Example
+    --server-address=127.0.0.1
+    --definition-file=/flip_definitions/default_flip_definition.xml
+
+### vantage_transcode [bin/vantage_transcode]
+
+#### Description
   A utility to submit a new transcode job to Vantage
 
 #### Usage
@@ -31,6 +61,8 @@
 ##### Options File Content Example
     --server-address=127.0.0.1
     --definition-file=/flip_definitions/default_flip_definition.xml
+
+
 
 ## Contributing
 
