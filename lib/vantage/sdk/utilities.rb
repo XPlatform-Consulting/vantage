@@ -1,3 +1,6 @@
+require 'logger'
+require 'net/http'
+
 module Vantage
 
   class SDK
