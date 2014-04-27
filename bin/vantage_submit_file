@@ -43,8 +43,6 @@ submit_args = options
 remaining_arguments = ARGV
 file_paths = remaining_arguments
 
-init_args[:server_address] ||= '10.1.3.76' # FOR TESTING
-
 ##########################
 
 vantage = Vantage::SDK::Utilities.new(init_args)
@@ -74,7 +72,7 @@ begin
       logger.debug { "Processing file path #{file_path_counter} of #{file_path_count}. '#{file_path}'" }
       [ file_path, vantage.submit_file( submit_args.merge( :source_filename => file_path ) ) ]
     end
-    if result.length == 1
+    if results.length == 1
       response = result.first
     else
       response = Hash[results]
