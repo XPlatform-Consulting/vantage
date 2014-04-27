@@ -21,7 +21,7 @@
         -h, --help                       Displays this message.
 
 #### Example
-    ./vantage_flip --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
+    ./vantage_transcode --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
 
 #### Options File
 
