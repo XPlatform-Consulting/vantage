@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+# A utility script that calls submit_file
+
+require 'rubygems'
+
+require 'json'
+require 'optparse'
+require 'pp'
+
+begin
+  require 'vantage/sdk/utilities'
+rescue LoadError
+  lib_path = File.expand_path('../../lib', __FILE__)
+  unless $:.include?(lib_path)
+    $:.unshift(lib_path)
+    retry
+  end
+  abort("Failed to load the gem. Exception: #{$!}")
+end
+
+require 'vantage/cli'
+
+options = { }
+op = OptionParser.new
+op.on('--server-address ADDRESS', 'The address of the Vantage server.') { |v| options[:server_address] = v }
+op.on('--server-port PORT', 'The port that the Vantage server is listening on.') { |v| options[:server_port] = v }
+op.on('--workflow-identifier ID', 'The id of the workflow to submit the file to.') { |v| options[:workflow_identifier] = v }
+op.on('--source-file-path FILENAME', 'The path of the file to submit.') { |v| options[:source_filename] = v }
+op.on('--job-name NAME', 'A name to give to the job when it is submitted.') { |v| options[:job_name] = v }
+op.on('--context CONTEXT', 'A JSON string representing the context argument to be passed to the workflow.') { |v| options[:context] = JSON.parse(v) }
+op.on('--path-substitutions JSON', 'A JSON String containing path substitutions in the form of key value pairs for find => replace') { |v| options[:path_substitutions] = JSON.parse(v) }
+original_arguments = ARGV.dup
+op.parse!
+op.parse!(original_arguments.dup) if op.load(options_file_path)
+
+init_args = { }
+init_args[:server_address] = options.delete(:server_address) { }
+init_args[:server_port] = options.delete(:server_port) { }
+init_args[:path_substitutions] = options.delete(:path_substitutions) { }
+
+submit_args = options
+
+remaining_arguments = ARGV
+file_paths = remaining_arguments
+
+init_args[:server_address] ||= '10.1.3.76' # FOR TESTING
+
+##########################
+
+vantage = Vantage::SDK::Utilities.new(init_args)
+@logger = vantage.logger
+def logger; @logger end
+
+# args = {
+#   :workflow_identifier => '9646d57c-cd42-44bf-80df-d3ea34d73a4a',
+#   :source_filename => 'M:\\Vantage_Test\\sd_in\\xplatform.mov',
+#   :job_name => 'JWW TEST 2',
+# }
+# puts vantage.submit_file(args)
+
+
+begin
+  if file_paths.empty?
+    # Handle call using just the parsed arguments
+    response = vantage.submit_file(submit_args)
+  else
+    # Handle paths from the remaining arguments
+    _file_paths = Dir.glob(file_paths.map { |file_path| File.directory?(file_path) ? "#{file_path}/*" : file_path })
+    file_path_count = _file_paths.length
+    file_path_counter = 0
+
+    results = _file_paths.map do |file_path|
+      file_path_counter += 1
+      logger.debug { "Processing file path #{file_path_counter} of #{file_path_count}. '#{file_path}'" }
+      [ file_path, vantage.submit_file( submit_args.merge( :source_filename => file_path ) ) ]
+    end
+    if result.length == 1
+      response = result.first
+    else
+      response = Hash[results]
+      response = JSON.generate(response)
+    end
+  end
+
+  puts response
+
+rescue ArgumentError => e
+  abort("#{e.message}\n\n#{op}")
+end
