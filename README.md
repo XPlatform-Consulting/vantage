@@ -50,12 +50,16 @@
             --definition-file PATH       The path to the xml file containing the flip definition.
         -h, --help                       Displays this message.
 
-#### Example
+#### Submit File to Vantage Flip Action Vantage using Action SDK
     ./vantage_transcode --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
-    
-    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" --source-file-path "M:\\\\Vantage_Test\\\\sd_in\\\\xplatform.mov"
-    
-    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" /assets/* /media/ --path-substitutions '{"/Volumes":"C:\\\\"}'
+
+#### Submit File(s) to Vantage Workflow using Vantage SOAP SDK
+
+    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" --source-file-path "M:\\\\Vantage_Test\\\\sd_in\\\\xplatform.mov" /Volumes/Xsan/*
+
+#### Submit File(s) to Vantage Workflow using Vantage SOAP SDK and using path substitutions to convert unix paths to Windows drive paths
+
+    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" /Volumes/Xsan/* --path-substitutions '{"/Volumes":"C:\\\\"}'
     
 
 #### Options File
