@@ -5,7 +5,7 @@
 ### vantage_flip [bin/vantage_flip]
 
 #### Description
-  A utility to submit a new transcode (flip) job to Vantage
+  A utility to submit a new transcode (flip) job to Vantage using the Action SDK Flip action
 
 #### Usage
     Usage: vantage_flip [options]
@@ -50,18 +50,6 @@
             --definition-file PATH       The path to the xml file containing the flip definition.
         -h, --help                       Displays this message.
 
-#### Submit File to Vantage Flip Action Vantage using Action SDK
-    ./vantage_transcode --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
-
-#### Submit File(s) to Vantage Workflow using Vantage SOAP SDK
-
-    ./vantage_submit_file --server-address localhost --workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" --source-file-path "M:\\\\Vantage_Test\\\\sd_in\\\\xplatform.mov" /Volumes/Xsan/*
-
-#### Submit File(s) to Vantage Workflow using Vantage SOAP SDK and using path substitutions to convert unix paths to Windows drive paths
-
-    ./vantage_submit_file --server-address 10.1.3.76 --workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" /Volumes/Xsan/* --path-substitutions '{"/Volumes":"C:\\\\"}'
-    
-
 #### Options File
 
 ##### Default Options File Location
@@ -71,6 +59,29 @@
     --server-address=127.0.0.1
     --definition-file=/flip_definitions/default_flip_definition.xml
 
+### vantage_submit_file [bin/vantage_submit_file]
+
+#### Description
+  A utility to submit files to a Vantage workflow using the submitFile action.
+
+#### Usage
+
+    Usage: vantage_submit_file [options] [file_or_directory_path, file_or_directory_path, ...]
+            --server-address ADDRESS     The address of the Vantage server.
+            --server-port PORT           The port that the Vantage server is listening on.
+            --workflow-identifier ID     The id of the workflow to submit the file to.
+            --source-file-path FILENAME  The path of the file to submit.
+            --job-name NAME              A name to give to the job when it is submitted.
+            --context CONTEXT            A JSON string representing the context argument to be passed to the workflow.
+            --path-substitutions JSON    A JSON String containing path substitutions in the form of key value pairs for find => replace
+
+#### Examples
+
+##### Submit File(s) to Vantage Workflow using Vantage SOAP SDK
+    ./vantage_submit_file --server-address localhost --workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "Some Job Name" --source-file-path "M:\\Vantage_Test\\sd_in\\xplatform.mov" /Volumes/Xsan/*
+
+##### Submit File(s) to Vantage Workflow using Vantage SOAP SDK and using path substitutions to convert unix paths to Windows drive paths
+    ./vantage_submit_file --server-address 10.1.3.76 --workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "Some Job Name" /Volumes/Xsan/* --path-substitutions '{"/Volumes":"C:\\"}'
 
 
 ## Contributing
