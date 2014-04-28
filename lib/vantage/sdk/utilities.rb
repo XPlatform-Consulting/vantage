@@ -26,10 +26,14 @@ module Vantage
         @logger = args[:logger] ||= Logger.new(STDERR)
       end
 
-      def substitute_paths_in(file_path, _path_substitutions = path_substitutions, options = { })
-        return file_path.map { |fp| substitute_paths_in(fp, _path_substitutions, options) } if file_path.is_a?(Array)
+      def substitute_paths(file_path, _path_substitutions = path_substitutions, options = { })
+        return file_path.map { |fp| substitute_paths(fp, _path_substitutions, options) } if file_path.is_a?(Array)
         _path_substitutions.each do |from, to|
-          return file_path.sub(from, to) if file_path.include?(from)
+          if file_path.include?(from)
+            new_file_path = file_path.sub(from, to)
+            logger.debug { "Translating path '#{file_path}' => '#{new_file_path}'"}
+            return new_file_path
+          end
         end
         file_path
       end
@@ -125,6 +129,11 @@ module Vantage
       def submit_file(args = { })
         parameters = [ :workflow_identifier, :source_filename, :context, :job_name ]
         _args = process_parameters(parameters, args)
+
+        source_filename = _args[:source_filename].dup
+        source_filename = substitute_paths(source_filename) if source_filename
+        #source_filename.gsub!('\\', '/')
+        _args[:source_filename] = source_filename
 
         # Enforce the order of the arguments
         elements = parameters.map { |k| build_ns_elements( k => _args[k] ).pop if _args.has_key?(k) }.compact
