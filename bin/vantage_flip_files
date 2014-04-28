@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+# vantage_transcode_files --server-address 10.1.3.76 --output-location "C:\media\out" --definition-file "flip_definition.xml" /assets/*
+require 'rubygems'
+require 'optparse'
+
+begin
+  require 'vantage/action_sdk'
+rescue LoadError
+  lib_path = File.expand_path('../../lib', __FILE__)
+  unless $:.include?(lib_path)
+    $:.unshift(lib_path)
+    retry
+  end
+  abort("Failed to load the gem. Exception: #{$!}")
+end
+
+# @return [String] The location
+def options_file_path
+  @options_file_path ||= begin
+    base_name = File.basename($0, '.*')
+    _ofp = File.expand_path("#{base_name}_options")
+    _ofp = File.expand_path(base_name, '~/.options') unless File.exists?(_ofp)
+    _ofp
+  end
+end
+init_args = { }
+options = { }
+op = OptionParser.new
+op.on('--server-address ADDRESS', 'The address of the Vantage server.') { |v| init_args[:server_address] = v }
+op.on('--server-port PORT', 'The port that the Vantage server is listening on.') { |v| init_args[:server_port] = v }
+# op.on('--source-file-path PATH', 'The source media file that will be transcoded (flipped).',
+#       'NOTE: This path needs to be relative to the server.') { |v| options[:source_file_path] = v }
+op.on('--output-location PATH', 'The output location where the transcoder should create the new file.',
+      'NOTE: This path needs to be relative to the server.') { |v| options[:output_location] = v }
+# op.on('--output-name NAME', 'The basename (everything but the last extension) of the output file.',
+#       "(eg: if you are using the quicktime movie encoder and you specify a basename of 'file1234'; the final output filename would be:  'file1234.mov'") { |v| options[:output_name] = v }
+op.on('--definition-file PATH', 'The path to the xml file containing the flip definition.') { |v| options[:definition_file_path] = v }
+op.on('-h', '--help', 'Displays this message.') { puts op; exit }
+original_arguments = ARGV.dup
+op.parse!
+remaining_arguments = ARGV
+op.parse!(original_arguments.dup) if op.load(options_file_path)
+
+vantage = Vantage::ActionSDK::Rest.new(init_args)
+flip_args = options
+
+file_paths = remaining_arguments
+
+file_paths_count_total = file_paths.length
+file_paths_counter = 0
+file_paths.each do |file_path|
+  file_paths_counter += 1
+  puts "Processing file #{file_paths_counter} of #{file_paths_count_total}. '#{file_path}'"
+  _flip_args = flip_args.dup
+  _flip_args[:source_file_path] = file_path
+  _flip_args[:output_name] = File.basename(file_path, '.*')
+
+  begin
+    puts vantage.flip(_flip_args)
+  rescue ArgumentError => e
+    abort("#{e.message}\n\n#{op}")
+  end
+
+end
