@@ -63,7 +63,15 @@ begin
     response = vantage.submit_file(submit_args)
   else
     # Handle paths from the remaining arguments
-    _file_paths = Dir.glob(file_paths.map { |file_path| File.directory?(file_path) ? "#{file_path}/*" : file_path })
+
+    # Make sure directories are in glob format
+    _file_paths = file_paths.map { |file_path| File.directory?(file_path) ? "#{file_path}/*" : file_path }
+
+    _file_paths = Dir.glob(_file_paths)
+
+    # Make sure each path is a file and not a directory
+    _file_paths = _file_paths.map { |fp| File.file?(fp) ? fp : nil }.compact
+
     file_path_count = _file_paths.length
     file_path_counter = 0
 
