@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'json'
+require 'optparse'
+
+begin
+  require 'vantage/action_sdk'
+rescue LoadError
+  lib_path = File.expand_path('../../lib', __FILE__)
+  unless $:.include?(lib_path)
+    $:.unshift(lib_path)
+    retry
+  end
+  abort("Failed to load the gem. Exception: #{$!}")
+end
+
+# @return [String] The location
+def options_file_path
+  @options_file_path ||= begin
+    base_name = File.basename($0, '.*')
+    _ofp = File.expand_path("#{base_name}_options")
+    _ofp = File.expand_path(base_name, '~/.options') unless File.exists?(_ofp)
+    _ofp
+  end
+end
+init_args = { }
+options = { }
+op = OptionParser.new
+op.on('--server-address ADDRESS', 'The address of the Vantage server.') { |v| init_args[:server_address] = v }
+op.on('--server-port PORT', 'The port that the Vantage server is listening on.') { |v| init_args[:server_port] = v }
+op.on('--source-file-path PATH', 'The source media file that will be transcoded (flipped).',
+      'NOTE: This path needs to be relative to the server.') { |v| options[:source_file_path] = v }
+op.on('--output-location PATH', 'The output location where the transcoder should create the new file.',
+      'NOTE: This path needs to be relative to the server.') { |v| options[:output_location] = v }
+op.on('--output-name NAME', 'The basename (everything but the last extension) of the output file.',
+      "(eg: if you are using the quicktime movie encoder and you specify a basename of 'file1234'; the final output filename would be:  'file1234.mov'") { |v| options[:output_name] = v }
+op.on('--definition-file PATH', 'The path to the xml file containing the flip definition.') { |v| options[:definition_file_path] = v }
+op.on('-h', '--help', 'Displays this message.') { puts op; exit }
+original_arguments = ARGV.dup
+op.parse!
+op.parse!(original_arguments.dup) if op.load(options_file_path)
+
+flip_args = options
+
+remaining_arguments = ARGV
+file_paths = remaining_arguments
+
+
+vantage = Vantage::ActionSDK::Rest.new(init_args)
+
+begin
+  if file_paths.empty?
+    puts vantage.flip(flip_args)
+  else
+    _file_paths = Dir.glob(file_paths.map { |file_path| File.directory?(file_path) ? "#{file_path}/*" : file_path })
+    file_path_count = _file_paths.length
+    file_path_counter = 0
+    results = _file_paths.map do |file_path|
+      file_path_counter += 1
+      vantage.logger.debug { "Processing file path #{file_path_counter} of #{file_path_count}. '#{file_path}'" }
+      [ file_path, vantage.flip(flip_args.merge(:source_file_path => file_path, :output_name => File.basename(file_path, '.*'))) ]
+    end
+
+    response = Hash[results]
+    puts JSON.generate(response)
+  end
+
+rescue ArgumentError => e
+  abort("#{e.message}\n\n#{op}")
+end
+
