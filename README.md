@@ -52,6 +52,11 @@
 
 #### Example
     ./vantage_transcode --server-address localhost --source-file-path "M:\Vantage_Test\sd_in\xplatform.mov" --output-location "m:\Vantage_Test\sd_out" --output-name testfile_out --definition-file dev/flip_definition.xml
+    
+    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" --source-file-path "M:\\\\Vantage_Test\\\\sd_in\\\\xplatform.mov"
+    
+    ./vantage_submit_file —server-address 10.1.3.76 —workflow-identifier 9646d57c-cd42-44bf-80df-d3ea34d73a4a --job-name "JWW Test NOW" /assets/* /media/ --path-substitutions '{"/Volumes":"C:\\\\"}'
+    
 
 #### Options File
 
